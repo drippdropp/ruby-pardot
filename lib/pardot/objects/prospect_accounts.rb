@@ -11,34 +11,34 @@ module Pardot
           @client = client
         end
 
-        def query(search_criteria)
-          result = get '/do/query', search_criteria, 'result'
-          result['total_results'] = result['total_results'].to_i if
-            result['total_results']
+        def query(params={})
+          result = get('/do/query', params, 'result')
+          result['total_results'] = result['total_results'].to_i if result['total_results']
           result
         end
 
-        def describe(params={})
-          post('/do/describe', params)
+        def assign(prospect_account_id, pardot_user_id, params={})
+          post("/do/assign/id/#{prospect_account_id}", { user_id: pardot_user_id }.merge(params) )
         end
 
-        def create(params={})
-          post('/do/create', params)
+        # describe(params={})
+        # create(params={})
+        [:describe, :create].each do |verb|
+          define_method(verb) do |params={}|
+            post("/do/#{verb}", params)
+          end
         end
 
-        # read_by_id
-        # update_by_id
-        [:read, :update].each do |verb|
+        # read(id, params={})
+        # update(id, params={})
+        # delete(id, params={})
+        [:read, :update, :delete].each do |verb|
           define_method(verb) do |id, params={}|
-            post(api_url(verb, 'id', id), params)
+            post("/do/#{verb}/id/#{id}", params)
           end
         end
 
         private
-
-        def api_url(verb, direct_to, value)
-          "/do/#{verb}/#{direct_to}/#{value}"
-        end
 
         def get(path, params={}, result='prospectAccount')
           response = @client.get('prospectAccount', path, params)

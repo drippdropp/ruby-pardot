@@ -38,7 +38,7 @@ module Pardot
           end
         end
 
-        private
+        protected
 
         def get(path, params={}, result='prospectAccount')
           response = @client.get('prospectAccount', path, params)
